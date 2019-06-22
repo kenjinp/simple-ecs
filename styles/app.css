@@ -30,7 +30,10 @@ body {
   z-index: 0;
 }
 
-canvas {
+#world {
   height: 100%;
   width: 100%;
+}
+
+.textures {
 }

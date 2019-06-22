@@ -12,7 +12,7 @@ class RenderSystem extends System {
       onAdd: (component: Component) => {
         console.log(component);
         console.log(component.expand());
-        this.state.world.addCharacter(component);
+        this.state.world.addCharacter(component.expand());
       }
     });
   }

@@ -1,14 +1,14 @@
 import System from "../Engine/System";
-import { Character } from "../Components/Character";
+import { Die } from "../Components/Character";
 import components from "../Engine/Components";
+import { diceTypeList } from "../Systems/Render/Dice/types";
 
 class ControlSystem extends System {
   onAdded() {
     document.onkeypress = (event: KeyboardEvent) => {
-      const { key } = event;
-      if (key !== " ") {
-        components.add(new Character({ key }));
-      }
+      const diceType =
+        diceTypeList[Math.floor(Math.random() * diceTypeList.length)];
+      components.add(new Die({ diceType }));
     };
   }
   onRemove() {}

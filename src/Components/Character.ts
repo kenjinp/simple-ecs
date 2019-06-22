@@ -36,3 +36,21 @@ export class Character extends Component {
     super("CHARACTER", data);
   }
 }
+
+export class Die extends Component {
+  data: {
+    diceType: string;
+    transform: Transform;
+  };
+  constructor({ diceType }: { diceType: string }) {
+    const transform = new Transform();
+    const data = {
+      diceType,
+      transform: {
+        "@type": transform.type,
+        "@id": transform.uuid
+      }
+    };
+    super("DIE", data);
+  }
+}

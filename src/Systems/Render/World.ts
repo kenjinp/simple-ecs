@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "@avatsaev/three-orbitcontrols-ts";
 import { Character } from "../../Components/Character";
+import { d12 } from "./Dice";
 
 export interface Transform {
   position: { x: number; y: number; z: number };
@@ -61,7 +62,7 @@ export default class World {
     const rot = new THREE.Vector3(1, 0, 0);
     ground.quaternion.setFromAxisAngle(rot, Math.PI / 2);
     ground.receiveShadow = true;
-    this.scene.add(ground);
+    // this.scene.add(ground);
 
     // LIGHTS
     this.scene.add(new THREE.AmbientLight(0x666666));
@@ -118,8 +119,7 @@ export default class World {
   }
 
   addCharacter(character: Character) {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshLambertMaterial({ color: 0x0aeedf });
+    const { geometry, material } = d12.create(1);
     const cube = new THREE.Mesh(geometry, material);
     cube.receiveShadow = true;
     cube.castShadow = true;
