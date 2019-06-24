@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "@avatsaev/three-orbitcontrols-ts";
-import { Character } from "../../Components/Character";
-import { d12 } from "./Dice";
+import { Character, Die } from "../../Components/Character";
+import * as dice from "./Dice";
 
 export interface Transform {
   position: { x: number; y: number; z: number };
@@ -118,25 +118,48 @@ export default class World {
     this.scene.add(box);
   }
 
-  addCharacter(character: Character) {
-    const { geometry, material } = d12.create(1);
-    const cube = new THREE.Mesh(geometry, material);
-    cube.receiveShadow = true;
-    cube.castShadow = true;
-    const box = new THREE.Object3D();
-    box.add(cube);
-    const { position } = character.data.transform.data;
-    if (position) {
-      const { x, y, z } = position;
-      box.position.set(x, y, z);
+  addDie(die: Die) {
+    if (dice[die.data.diceType]) {
+      const { geometry, material } = dice[die.data.diceType].create(1);
+      const cube = new THREE.Mesh(geometry, material);
+      cube.receiveShadow = true;
+      cube.castShadow = true;
+      const object = new THREE.Object3D();
+      object.add(cube);
+      const { position } = die.data.transform.data;
+      if (position) {
+        const { x, y, z } = position;
+        object.position.set(x, y, z);
+      }
+      const { rotation } = die.data.transform.data;
+      if (rotation) {
+        const { x, y, z } = rotation;
+        object.rotation.set(x, y, z);
+      }
+      object.name = die.uuid;
+      this.worldObjects[die.uuid] = object;
+      this.scene.add(object);
     }
-    const { rotation } = character.data.transform.data;
-    if (rotation) {
-      const { x, y, z } = rotation;
-      box.rotation.set(x, y, z);
-    }
-    this.worldObjects[character.uuid] = box;
-    this.scene.add(box);
+    console.warn("No diceType found for ", die.data.diceType);
+  }
+
+  removeDie(die: Die) {
+    console.log(
+      "attempting to delete",
+      die,
+      this.scene.getObjectByName(die.uuid)
+    );
+    const worldObject = this.scene.getObjectByName(die.uuid);
+    // const worldObject = this.worldObjects[die.uuid];
+    // if (worldObject) {
+    // console.log("attempting to delete", worldObject);
+    worldObject.children.forEach(object => worldObject.remove(object));
+    this.scene.remove(worldObject);
+    // this.scene.remove(this.scene.getObjectByName(die.uuid));
+    // delete this.worldObjects[die.uuid];
+    console.log({ scene: this.scene, worldObject });
+    // }
+    // console.warn("no object found ", die.uuid);
   }
 
   getWorldObjectByUUID(uuid: string) {

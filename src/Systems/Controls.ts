@@ -8,7 +8,12 @@ class ControlSystem extends System {
     document.onkeypress = (event: KeyboardEvent) => {
       const diceType =
         diceTypeList[Math.floor(Math.random() * diceTypeList.length)];
-      components.add(new Die({ diceType }));
+      const die = new Die({ diceType });
+      console.log("kkeyyyyy", die);
+      components.add(die);
+      setTimeout(() => {
+        components.remove(die);
+      }, 3000);
     };
   }
   onRemove() {}

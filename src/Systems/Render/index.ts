@@ -8,11 +8,12 @@ class RenderSystem extends System {
       world: new World(this.props.canvas)
     };
 
-    components.follow(["CHARACTER"], {
+    components.follow(["DIE"], {
       onAdd: (component: Component) => {
-        console.log(component);
-        console.log(component.expand());
-        this.state.world.addCharacter(component.expand());
+        this.state.world.addDie(component.expand());
+      },
+      onDelete: (component: Component) => {
+        this.state.world.removeDie(component.expand());
       }
     });
   }

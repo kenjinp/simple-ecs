@@ -88,6 +88,18 @@ class Components {
     }
   }
 
+  remove(component: Component) {
+    const { [component.uuid]: key, ...filteredComponents } = this.index[
+      component.type
+    ];
+    this.index[component.type] = filteredComponents;
+    if (this.followList[component.type]) {
+      this.followList[component.type].forEach(follow => {
+        follow.onDelete && follow.onDelete(component);
+      });
+    }
+  }
+
   follow(componentTypes: string[], follow: Follow) {
     componentTypes.forEach(type => {
       if (this.followList[type]) {
