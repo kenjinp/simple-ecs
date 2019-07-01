@@ -1,6 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "@avatsaev/three-orbitcontrols-ts";
 import { Character, Die } from "../../Components/Character";
+import {
+  BloomEffect,
+  EffectComposer,
+  EffectPass,
+  RenderPass,
+  BlendFunction,
+  KernelSize,
+  PixelationEffect
+} from "postprocessing";
 import * as dice from "./Dice";
 
 export interface Transform {
@@ -21,6 +30,7 @@ export default class World {
   private worldObjects: {
     [uuid: string]: THREE.Object3D;
   };
+  private composer: EffectComposer;
   constructor(canvas: HTMLCanvasElement) {
     this.worldObjects = {};
     this.scene = new THREE.Scene();
@@ -43,6 +53,15 @@ export default class World {
 
     this.camera.name = "debug-camera";
     this.camera.position.set(0, 0, 20);
+    this.composer = new EffectComposer(this.renderer);
+
+    const pixelationEffect = new PixelationEffect(2.0);
+
+    const effectPass = new EffectPass(this.camera, pixelationEffect);
+    effectPass.renderToScreen = true;
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    this.composer.addPass(effectPass);
+
     this.scene.add(this.camera);
 
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -50,6 +69,37 @@ export default class World {
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.autoRotate = true;
+
+    const starsGeometry = new THREE.Geometry();
+
+    for (let i = 0; i < 5000; i++) {
+      const star = new THREE.Vector3();
+      star.x = THREE.Math.randFloatSpread(2000);
+      star.y = THREE.Math.randFloatSpread(2000);
+      star.z = THREE.Math.randFloatSpread(2000);
+
+      starsGeometry.vertices.push(star);
+    }
+
+    const starsMaterial = new THREE.PointsMaterial({ color: 0xfee2f8 });
+
+    const starsGeometry2 = new THREE.Geometry();
+    for (let i = 0; i < 5000; i++) {
+      const star = new THREE.Vector3();
+      star.x = THREE.Math.randFloatSpread(2000);
+      star.y = THREE.Math.randFloatSpread(2000);
+      star.z = THREE.Math.randFloatSpread(2000);
+
+      starsGeometry2.vertices.push(star);
+    }
+
+    const starsMaterial2 = new THREE.PointsMaterial({ color: 0x00bcd4 });
+
+    const starField = new THREE.Points(starsGeometry, starsMaterial);
+    const starField2 = new THREE.Points(starsGeometry2, starsMaterial2);
+    this.scene.add(starField);
+    this.scene.add(starField2);
+
     // const rot = new THREE.Vector3(0, 1, 1);
     // this.camera.quaternion.setFromAxisAngle(rot, Math.PI / 2);
 
@@ -91,8 +141,9 @@ export default class World {
     );
   }
 
-  update() {
+  update(delta: number) {
     this.renderer.render(this.scene, this.camera);
+    this.composer.render(delta);
     return this;
   }
 
@@ -150,16 +201,11 @@ export default class World {
       this.scene.getObjectByName(die.uuid)
     );
     const worldObject = this.scene.getObjectByName(die.uuid);
-    // const worldObject = this.worldObjects[die.uuid];
-    // if (worldObject) {
-    // console.log("attempting to delete", worldObject);
-    worldObject.children.forEach(object => worldObject.remove(object));
     this.scene.remove(worldObject);
-    // this.scene.remove(this.scene.getObjectByName(die.uuid));
-    // delete this.worldObjects[die.uuid];
+    this.scene.children = this.scene.children.filter(
+      child => child.name !== worldObject.name
+    );
     console.log({ scene: this.scene, worldObject });
-    // }
-    // console.warn("no object found ", die.uuid);
   }
 
   getWorldObjectByUUID(uuid: string) {

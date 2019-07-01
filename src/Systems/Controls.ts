@@ -5,7 +5,7 @@ import { diceTypeList } from "../Systems/Render/Dice/types";
 
 class ControlSystem extends System {
   onAdded() {
-    document.onkeypress = (event: KeyboardEvent) => {
+    document.addEventListener("keypress", (event: KeyboardEvent) => {
       const diceType =
         diceTypeList[Math.floor(Math.random() * diceTypeList.length)];
       const die = new Die({ diceType });
@@ -14,7 +14,7 @@ class ControlSystem extends System {
       setTimeout(() => {
         components.remove(die);
       }, 3000);
-    };
+    });
   }
   onRemove() {}
 }

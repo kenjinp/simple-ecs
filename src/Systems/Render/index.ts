@@ -17,9 +17,9 @@ class RenderSystem extends System {
       }
     });
   }
-  onUpdate() {
+  onUpdate(delta: number) {
     const { world } = this.state;
-    world.update();
+    world.update(delta);
   }
 }
 
